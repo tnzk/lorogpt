@@ -1,0 +1,9 @@
+{
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.insertSpaces": false,
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": "explicit"
+	},
+	"prettier.documentSelectors": ["**/*.svelte"]
+}
