@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { X } from '@steeze-ui/lucide-icons';
+	import { Icon } from '@steeze-ui/svelte-icon';
+	import PizzariaEditor, { type PizzariaSetting } from './PizzariaEditor.svelte';
 	import Spinner from './Spinner.svelte';
 	import StreamText from './StreamText.svelte';
 
@@ -28,6 +31,112 @@
 	let settingDialog: HTMLDialogElement;
 	let prompt = '';
 	let thread: { role: string; message: string | Promise<ReadableStream> }[] = [];
+	let pizzariaSetting: PizzariaSetting = {
+		pizzaria_name: "Luigi's",
+		sizes: [
+			{
+				name: 'Small',
+				max_flavors: 1
+			},
+			{
+				name: 'Medium',
+				max_flavors: 2
+			},
+			{
+				name: 'Large',
+				max_flavors: 3
+			}
+		],
+		flavors: [
+			{
+				name: 'Margherita',
+				ingredients: ['Tomato Sauce', 'Mozzarella Cheese', 'Basil'],
+				price: {
+					Small: 40.0,
+					Medium: 50.0,
+					Large: 70.0
+				}
+			},
+			{
+				name: 'Pepperoni',
+				ingredients: ['Tomato Sauce', 'Mozzarella Cheese', 'Pepperoni'],
+				price: {
+					Small: 40.0,
+					Medium: 50.0,
+					Large: 70.0
+				}
+			},
+			{
+				name: 'Four Cheese',
+				ingredients: [
+					'Tomato Sauce',
+					'Mozzarella Cheese',
+					'Parmesan Cheese',
+					'Gorgonzola Cheese',
+					'Provolone Cheese'
+				],
+				price: {
+					Small: 45.0,
+					Medium: 55.0,
+					Large: 75.0
+				}
+			},
+			{
+				name: 'Chicken with Catupiry',
+				ingredients: ['Tomato Sauce', 'Mozzarella Cheese', 'Shredded Chicken', 'Catupiry Cheese'],
+				price: {
+					Small: 50.0,
+					Medium: 60.0,
+					Large: 80.0
+				}
+			},
+			{
+				name: 'Calabrese',
+				ingredients: ['Tomato Sauce', 'Mozzarella Cheese', 'Calabrese Sausage', 'Onions'],
+				price: {
+					Small: 55.0,
+					Medium: 65.0,
+					Large: 85.0
+				}
+			},
+			{
+				name: 'Portuguese',
+				ingredients: [
+					'Tomato Sauce',
+					'Mozzarella Cheese',
+					'Ham',
+					'Onions',
+					'Boiled Eggs',
+					'Green Peas',
+					'Olives'
+				],
+				price: {
+					Small: 60.0,
+					Medium: 70.0,
+					Large: 90.0
+				}
+			}
+		],
+		stuffed_crust: 5.0,
+		soft_drinks: [
+			{
+				name: 'Coca-Cola',
+				price: 15.0
+			},
+			{
+				name: 'Guaraná Antarctica',
+				price: 15.0
+			},
+			{
+				name: 'Fanta Orange',
+				price: 15.0
+			},
+			{
+				name: 'Sprite',
+				price: 15.0
+			}
+		]
+	};
 
 	function openSettingDialog() {
 		settingDialog.showModal();
@@ -218,57 +327,24 @@
 	bind:this={settingDialog}
 	class="m-0 max-h-none max-w-none bg-transparent backdrop:bg-black backdrop:bg-opacity-50"
 >
-	<div class="flex h-dvh w-screen items-center justify-center p-12">
-		<div class="w-full max-w-screen-md bg-white p-12">
-			<table class="table">
-				<thead>
-					<tr>
-						<th>Pizzeria Name</th>
-						<th>Flavours</th>
-						<th>Igredients</th>
-						<th>Sizes</th>
-						<th>Prices</th>
-						<th>Delivery Prices</th>
-						<th>Extras</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each Array(3) as _}
-						<tr>
-							<td>Pizzeria Name</td>
-							<td>Flavours</td>
-							<td>Igredients</td>
-							<td>Sizes</td>
-							<td>Prices</td>
-							<td>Delivery Prices</td>
-							<td>Extras</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-
-			<form method="dialog" class="flex justify-center mt-6">
-				<button type="submit" class="px-2 py-1 rounded-md border">Close</button>
+	<div class=" flex h-dvh w-screen items-center justify-center px-4 sm:px-12 py-12">
+		<div class="relative w-full max-w-screen-md h-full bg-white">
+			<div class="w-full h-full overflow-y-auto px-4 py-8 sm:px-12 sm:py-12">
+				<PizzariaEditor bind:setting={pizzariaSetting} />
+			</div>
+			<form method="dialog" class="absolute top-0 right-0 m-3">
+				<button
+					type="submit"
+					autofocus
+					class="w-12 h-12 inline-flex items-center justify-center rounded-full text-white bg-zinc-700 bg-opacity-40"
+					on:click={() => {
+						// debug
+						console.log(JSON.stringify(pizzariaSetting, undefined, 2));
+					}}
+				>
+					<Icon src={X} class="w-8 h-8" />
+				</button>
 			</form>
 		</div>
 	</div>
 </dialog>
-
-<style lang="postcss">
-	.table {
-		@apply w-full;
-
-		th,
-		td {
-			@apply p-2;
-		}
-
-		th {
-			@apply text-zinc-400 font-bold bg-zinc-100;
-		}
-
-		td {
-			@apply border-b;
-		}
-	}
-</style>
