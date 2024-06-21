@@ -35,23 +35,26 @@
 
 	function submitMessage(message: string) {
 		thread = [...thread, { role: 'user', message }];
+		thread = [...thread, { role: 'assistant', message: sendMessage(message) }];
+	}
 
-		// TODO: Call API
-		async function dummyMessage() {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			return new ReadableStream<string>({
-				async start(controller) {
-					const message =
-						'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
-					for (const chunk of message.split(' ')) {
-						controller.enqueue(chunk + ' ');
-						await new Promise((resolve) => setTimeout(resolve, 100));
+	async function sendMessage(message: string) {
+		const res = await fetch('/api/chat', {
+			method: 'POST',
+			body: JSON.stringify({ message })
+		});
+		if (res.body) {
+			const decoder = new TextDecoder();
+			return res.body.pipeThrough(
+				new TransformStream<Uint8Array, string>({
+					transform(chunk, controller) {
+						controller.enqueue(decoder.decode(chunk));
 					}
-					controller.close();
-				}
-			});
+				})
+			);
+		} else {
+			throw new Error('Missing stream');
 		}
-		thread = [...thread, { role: 'assistant', message: dummyMessage() }];
 	}
 </script>
 
