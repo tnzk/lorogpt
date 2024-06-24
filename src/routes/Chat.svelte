@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { X } from '@steeze-ui/lucide-icons';
+	import { Bird, User, X } from '@steeze-ui/lucide-icons';
 	import { Icon } from '@steeze-ui/svelte-icon';
+	import { tick } from 'svelte';
 	import PizzariaEditor, { type PizzariaSetting } from './PizzariaEditor.svelte';
 	import Spinner from './Spinner.svelte';
 	import StreamText from './StreamText.svelte';
@@ -29,7 +30,9 @@
 	];
 
 	let settingDialog: HTMLDialogElement;
+	let scroller: HTMLElement;
 	let prompt = '';
+	let threadId: string | null = null;
 	let thread: { role: string; message: string | Promise<ReadableStream> }[] = [];
 	let pizzariaSetting: PizzariaSetting = {
 		pizzaria_name: "Luigi's",
@@ -145,13 +148,18 @@
 	function submitMessage(message: string) {
 		thread = [...thread, { role: 'user', message }];
 		thread = [...thread, { role: 'assistant', message: sendMessage(message) }];
+		tick().then(() => (scroller.scrollTop = scroller.scrollHeight));
 	}
 
 	async function sendMessage(message: string) {
 		const res = await fetch('/api/chat', {
 			method: 'POST',
-			body: JSON.stringify({ message })
+			body: JSON.stringify({ message, threadId, setting: pizzariaSetting })
 		});
+		if (!res.ok) {
+			throw new Error(`${res.status} ${res.statusText}`);
+		}
+		threadId = res.headers.get('x-loro-thread-id');
 		if (res.body) {
 			const decoder = new TextDecoder();
 			return res.body.pipeThrough(
@@ -192,7 +200,7 @@
 		<div class="bg-loro-green text-loro-green-lighter rounded-3xl w-full max-w-96 h-[450px]">
 			<div class="h-full grid auto-rows-[auto_max-content] gap-3 p-4">
 				{#if thread.length > 0}
-					<div class="h-full overflow-y-auto">
+					<div bind:this={scroller} class="h-full overflow-y-auto">
 						<div class="grid divide-y">
 							{#each thread as item}
 								<div class="py-2 flex gap-3">
@@ -202,43 +210,9 @@
 											class:bg-loro-green-dark={item.role === 'assistant'}
 										>
 											{#if item.role === 'assistant'}
-												<!-- Lucide bird -->
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													width="24"
-													height="24"
-													viewBox="0 0 24 24"
-													fill="none"
-													stroke="currentColor"
-													stroke-width="2"
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													class="w-6 h-6"
-													><path d="M16 7h.01" /><path
-														d="M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20"
-													/><path d="m20 7 2 .5-2 .5" /><path d="M10 18v3" /><path
-														d="M14 17.75V21"
-													/><path d="M7 18a6 6 0 0 0 3.84-10.61" /></svg
-												>
+												<Icon src={Bird} class="w-6 h-6" />
 											{:else}
-												<!-- Lucide user -->
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													width="24"
-													height="24"
-													viewBox="0 0 24 24"
-													fill="none"
-													stroke="currentColor"
-													stroke-width="2"
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													class="w-6 h-6"
-													><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle
-														cx="12"
-														cy="7"
-														r="4"
-													/></svg
-												>
+												<Icon src={User} class="w-6 h-6" />
 											{/if}
 										</div>
 									</div>
@@ -249,7 +223,16 @@
 											{#await item.message}
 												<Spinner class="w-6 h-6 text-loro-green-lighter fill-white animate-spin" />
 											{:then stream}
-												<StreamText {stream} />
+												<div class="whitespace-pre-wrap">
+													<StreamText
+														{stream}
+														on:chunk={() => (scroller.scrollTop = scroller.scrollHeight)}
+													/>
+												</div>
+											{:catch}
+												<span class="text-red-500">
+													Sorry, the service is temporarily unavailable.
+												</span>
 											{/await}
 										{/if}
 									</div>

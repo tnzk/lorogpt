@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { createEventDispatcher, onMount, tick } from 'svelte';
+
+	const dispatch = createEventDispatcher<{ chunk: undefined }>();
 
 	export let stream: ReadableStream<string>;
 
@@ -13,6 +15,7 @@
 				break;
 			}
 			text += value;
+			tick().then(() => dispatch('chunk'));
 		}
 	});
 </script>
