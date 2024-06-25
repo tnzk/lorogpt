@@ -16,26 +16,8 @@
 		/* Add your own Mailchimp form style overrides in your site stylesheet or in this style block.
 			 We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
 	</style>
-	<script src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script>
-	<script>
-		(function ($) {
-			window.fnames = new Array();
-			window.ftypes = new Array();
-			fnames[0] = 'EMAIL';
-			ftypes[0] = 'email';
-			fnames[1] = 'FNAME';
-			ftypes[1] = 'text';
-			fnames[2] = 'LNAME';
-			ftypes[2] = 'text';
-			fnames[3] = 'ADDRESS';
-			ftypes[3] = 'address';
-			fnames[4] = 'PHONE';
-			ftypes[4] = 'phone';
-			fnames[5] = 'BIRTHDAY';
-			ftypes[5] = 'birthday';
-		})(jQuery);
-		var $mcj = jQuery.noConflict(true);
-	</script>
+	<script defer src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script>
+	<script defer src="/mailchimp.js"></script>
 </svelte:head>
 
 <div id="mc_embed_shell">
