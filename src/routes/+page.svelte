@@ -1,5 +1,10 @@
 <script lang="ts">
+	import { X } from '@steeze-ui/lucide-icons';
+	import { Icon } from '@steeze-ui/svelte-icon';
 	import Chat from './Chat.svelte';
+	import SubscribeForm from './SubscribeForm.svelte';
+
+	let subscribeDialog: HTMLDialogElement;
 </script>
 
 <header class="px-4 py-4 bg-loro-green-lighter">
@@ -23,7 +28,9 @@
 
 		<div class="flex-1 flex justify-center items-center">
 			<div class="w-full text-center bg-gray-100 py-1">
-				<button>Join Waiting List</button>
+				<button class="underline" on:click={() => subscribeDialog.showModal()}
+					>Join Waiting List</button
+				>
 			</div>
 		</div>
 	</div>
@@ -47,3 +54,20 @@
 		</div>
 	</div>
 </section>
+
+<dialog
+	bind:this={subscribeDialog}
+	class="m-0 max-h-none max-w-none bg-transparent backdrop:bg-black backdrop:bg-opacity-50"
+>
+	<div class="flex h-dvh w-screen items-center justify-center px-4 sm:px-12 py-12">
+		<div class="relative w-full max-w-xl bg-white">
+			<SubscribeForm />
+
+			<form method="dialog" class="absolute right-0 top-0">
+				<button autofocus type="submit">
+					<Icon src={X} class="w-12 h-12" />
+				</button>
+			</form>
+		</div>
+	</div>
+</dialog>
