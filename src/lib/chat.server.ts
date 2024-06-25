@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import OpenAI from 'openai';
+import type { PizzariaSetting } from './types';
 
 const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
 
@@ -7,7 +8,7 @@ export async function sendMessageToAssistant(
 	assistantId: string,
 	threadId: string | null,
 	message: string,
-	setting: object
+	setting: PizzariaSetting
 ): Promise<{ stream: ReadableStream<string>; threadId: string }> {
 	if (!threadId) {
 		const thread = await openai.beta.threads.create({
@@ -29,21 +30,66 @@ export async function sendMessageToAssistant(
 	await openai.beta.threads.messages.create(threadId, { role: 'user', content: message });
 
 	const run = openai.beta.threads.runs.stream(threadId, { assistant_id: assistantId });
+	let pendingAction = false;
+	let streamEnd = false;
 	const stream = new ReadableStream({
 		start(controller) {
 			run
 				.on('textDelta', (textDelta, snapshot) => {
 					controller.enqueue(textDelta.value);
 				})
-				.on('toolCallDelta', (toolCallDelta, snapshot) => {
-					// TODO
+				.on('event', async (event) => {
+					if (event.event === 'thread.run.requires_action') {
+						pendingAction = true;
+						console.log('pendingAction');
+						const toolCalls = event.data.required_action?.submit_tool_outputs.tool_calls ?? [];
+						for (const toolCall of toolCalls) {
+							let output: string | undefined;
+							switch (toolCall.function.name) {
+								case 'calculatePrice':
+									const price = calculatePrice(JSON.parse(toolCall.function.arguments), setting);
+									output = price.toString();
+									break;
+							}
+
+							if (output !== undefined) {
+								const stream = openai.beta.threads.runs.submitToolOutputsStream(
+									threadId,
+									event.data.id,
+									{
+										tool_outputs: [
+											{
+												tool_call_id: toolCall.id,
+												output: output
+											}
+										]
+									}
+								);
+								for await (const event of stream) {
+									if (event.event === 'thread.message.delta') {
+										controller.enqueue(event.data.delta);
+									}
+								}
+							}
+						}
+						if (streamEnd) {
+							controller.close();
+						}
+						pendingAction = false;
+					}
 				})
 				.on('error', (error) => {
 					console.error(error);
 					controller.error(error);
 				})
 				.on('end', () => {
-					controller.close();
+					if (pendingAction) {
+						console.log('streamEnd');
+						streamEnd = true;
+					} else {
+						console.log('close');
+						controller.close();
+					}
 				});
 		},
 		cancel() {
@@ -52,4 +98,13 @@ export async function sendMessageToAssistant(
 	});
 
 	return { stream, threadId };
+}
+
+function calculatePrice(
+	input: { flavor: string; size: string; stuffed_crust: boolean; soft_drinks: string[] },
+	settings: PizzariaSetting
+) {
+	console.log(input);
+	// TODO
+	return 100;
 }

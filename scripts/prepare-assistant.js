@@ -14,8 +14,44 @@ async function main() {
 	const params = {
 		name: 'LoroGPT Assistant',
 		instructions: await readFile(path.resolve(__dirname, 'instructions.txt'), 'utf-8'),
-		model: 'gpt-4o'
-		// tools: [{ type: 'code_interpreter' }],
+		model: 'gpt-4o',
+		tools: [
+			{
+				type: 'function',
+				function: {
+					name: 'calculatePrice',
+					description: 'Calculate total shipping price.',
+					parameters: {
+						type: 'object',
+						properties: {
+							flavor: {
+								type: 'string',
+								description:
+									'The name of the pizza flavor ordered by the customer. Pass the value of the `name` field under `flavors` in the setting JSON.'
+							},
+							size: {
+								type: 'string',
+								description:
+									'The size of the pizza ordered by the customer. Pass the value of the `name` field under `sizes` in the setting JSON.'
+							},
+							stuffed_crust: {
+								type: 'boolean',
+								description: 'Whether the customer has added stuffed crust.'
+							},
+							soft_drinks: {
+								type: 'array',
+								items: {
+									type: 'string'
+								},
+								description:
+									'List of names of soft drinks ordered by the customer. Pass the value of the `name` field under `soft_drinks` in the setting JSON.'
+							}
+						},
+						required: ['flavor', 'size', 'stuffed_crust', 'soft_drinks']
+					}
+				}
+			}
+		]
 	};
 
 	if (!assistantId) {

@@ -1,8 +1,9 @@
 <script lang="ts">
+	import type { PizzariaSetting } from '$lib/types';
 	import { Bird, User, X } from '@steeze-ui/lucide-icons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { tick } from 'svelte';
-	import PizzariaEditor, { type PizzariaSetting } from './PizzariaEditor.svelte';
+	import PizzariaEditor from './PizzariaEditor.svelte';
 	import Spinner from './Spinner.svelte';
 	import StreamText from './StreamText.svelte';
 

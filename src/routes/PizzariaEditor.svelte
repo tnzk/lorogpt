@@ -1,24 +1,5 @@
-<script context="module" lang="ts">
-	export type PizzariaSetting = {
-		pizzaria_name: string;
-		sizes: {
-			name: string;
-			max_flavors: number;
-		}[];
-		flavors: {
-			name: string;
-			ingredients: string[];
-			price: Record<string, number>;
-		}[];
-		stuffed_crust: number;
-		soft_drinks: {
-			name: string;
-			price: number;
-		}[];
-	};
-</script>
-
 <script lang="ts">
+	import type { PizzariaSetting } from '$lib/types';
 	import { X } from '@steeze-ui/lucide-icons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 
