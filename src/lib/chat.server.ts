@@ -30,7 +30,7 @@ export async function sendMessageToAssistant(
 	await openai.beta.threads.messages.create(threadId, { role: 'user', content: message });
 
 	const run = openai.beta.threads.runs.stream(threadId, { assistant_id: assistantId });
-	let pendingAction = false;
+	let runningAction = false;
 	let streamEnd = false;
 	const stream = new ReadableStream({
 		start(controller) {
@@ -40,8 +40,7 @@ export async function sendMessageToAssistant(
 				})
 				.on('event', async (event) => {
 					if (event.event === 'thread.run.requires_action') {
-						pendingAction = true;
-						console.log('pendingAction');
+						runningAction = true;
 						const toolCalls = event.data.required_action?.submit_tool_outputs.tool_calls ?? [];
 						for (const toolCall of toolCalls) {
 							let output: string | undefined;
@@ -67,7 +66,10 @@ export async function sendMessageToAssistant(
 								);
 								for await (const event of stream) {
 									if (event.event === 'thread.message.delta') {
-										controller.enqueue(event.data.delta);
+										const data = event.data.delta.content?.[0];
+										if (data?.type === 'text' && data.text?.value) {
+											controller.enqueue(data.text.value);
+										}
 									}
 								}
 							}
@@ -75,7 +77,7 @@ export async function sendMessageToAssistant(
 						if (streamEnd) {
 							controller.close();
 						}
-						pendingAction = false;
+						runningAction = false;
 					}
 				})
 				.on('error', (error) => {
@@ -83,11 +85,9 @@ export async function sendMessageToAssistant(
 					controller.error(error);
 				})
 				.on('end', () => {
-					if (pendingAction) {
-						console.log('streamEnd');
+					if (runningAction) {
 						streamEnd = true;
 					} else {
-						console.log('close');
 						controller.close();
 					}
 				});
@@ -101,10 +101,25 @@ export async function sendMessageToAssistant(
 }
 
 function calculatePrice(
-	input: { flavor: string; size: string; stuffed_crust: boolean; soft_drinks: string[] },
-	settings: PizzariaSetting
+	input: { flavors: string[]; size: string; stuffed_crust: boolean; soft_drinks: string[] },
+	setting: PizzariaSetting
 ) {
 	console.log(input);
-	// TODO
-	return 100;
+	const sum = (nums: number[]) => nums.reduce((a, n) => a + n, 0);
+	const pizzaPrice = sum(
+		input.flavors.map((name) => {
+			const flavor = setting.flavors.find((flavor) => flavor.name === name)!;
+			return flavor.price[input.size] / input.flavors.length;
+		})
+	);
+	const stuffedCrustPrice = input.stuffed_crust ? setting.stuffed_crust : 0;
+	const softDrinkPrice = sum(
+		input.soft_drinks.map((name) => {
+			const drink = setting.soft_drinks.find((drink) => drink.name === name)!;
+			return drink.price;
+		})
+	);
+	const total = sum([pizzaPrice, stuffedCrustPrice, softDrinkPrice]);
+	console.log(`Total: ${total}`);
+	return total;
 }

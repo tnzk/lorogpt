@@ -24,10 +24,13 @@ async function main() {
 					parameters: {
 						type: 'object',
 						properties: {
-							flavor: {
-								type: 'string',
+							flavors: {
+								type: 'array',
+								items: {
+									type: 'string'
+								},
 								description:
-									'The name of the pizza flavor ordered by the customer. Pass the value of the `name` field under `flavors` in the setting JSON.'
+									'List of the names of the pizza flavor ordered by the customer. Pass the value of the `name` field under `flavors` in the setting JSON.'
 							},
 							size: {
 								type: 'string',
@@ -44,7 +47,7 @@ async function main() {
 									type: 'string'
 								},
 								description:
-									'List of names of soft drinks ordered by the customer. Pass the value of the `name` field under `soft_drinks` in the setting JSON.'
+									'List of the names of soft drinks ordered by the customer. Pass the value of the `name` field under `soft_drinks` in the setting JSON.'
 							}
 						},
 						required: ['flavor', 'size', 'stuffed_crust', 'soft_drinks']

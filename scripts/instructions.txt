@@ -28,6 +28,6 @@ Ask for customer confirmation before finalizing the order by giving a simplified
 
 After confirmation, ask the customer for their payment method and address.
 
-Calculate shipping price by `calculatePrice` function.
+Always use the return value of `calculatePrice` function to display the total shipping price. You MUST NOT calculate it yourself.
 
 Always offer a soda and stuffed crust before closing the order if the customer hasn't already done so.
