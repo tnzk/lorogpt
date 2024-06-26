@@ -1,38 +1,28 @@
 <script lang="ts">
 	import type { PizzariaSetting } from '$lib/types';
-	import { Bird, User, X } from '@steeze-ui/lucide-icons';
+	import { Bird, Settings, User, X } from '@steeze-ui/lucide-icons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { tick } from 'svelte';
 	import PizzariaEditor from './PizzariaEditor.svelte';
 	import Spinner from './Spinner.svelte';
 	import StreamText from './StreamText.svelte';
 
-	const exampleMessages = [
-		{
-			heading: 'Uma pizza calabresa',
-			subheading: 'Calabresa',
-			message: 'Uma pizza calabresa por favor'
-		},
-		{
-			heading: 'Quantas fatias vem na pizza média?',
-			subheading: 'Quantidade de Fatias',
-			message: 'Quantas fatias vem na pizza média?'
-		},
-		{
-			heading: 'Uma pizza gigante no balcão',
-			subheading: 'Gigante',
-			message: 'Uma pizza gigante no balcão'
-		},
-		{
-			heading: 'Uma portuguesa sem cebola',
-			subheading: 'Ingredientes',
-			message: 'Uma portuguesa sem cebola por favor'
-		}
+	const presetMessages = [
+		'Uma pizza de champignon',
+		'Uma calabresa sem cebola',
+		'Estou em dúvida, me faça uma sugestão',
+		'Uma calabresa grande',
+		'Duas mussarelas pequenas e uma coca 2 litros',
+		'Uma pizza no balcão',
+		'O Cardápio por favor',
+		'Qual é a pizza do dia?',
+		'Quantos pedaços tem a grande?'
 	];
 
 	let settingDialog: HTMLDialogElement;
 	let scroller: HTMLElement;
-	let prompt = '';
+	let messageInput: HTMLInputElement;
+	let message = '';
 	let threadId: string | null = null;
 	let thread: { role: string; message: string | Promise<ReadableStream> }[] = [];
 	let pizzariaSetting: PizzariaSetting = {
@@ -176,135 +166,92 @@
 	}
 </script>
 
-<div class="w-full flex gap-2">
-	<div class="shrink-0">
-		<button on:click={() => openSettingDialog()}>
-			<!-- Lucide settings -->
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="24"
-				height="24"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				class="w-8 h-8"
-				><path
-					d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
-				/><circle cx="12" cy="12" r="3" /></svg
-			>
-		</button>
-	</div>
-	<div class="flex-1">
-		<div class="bg-loro-green text-loro-green-lighter rounded-3xl w-full max-w-96 h-[450px]">
-			<div class="h-full grid auto-rows-[auto_max-content] gap-3 p-4">
-				{#if thread.length > 0}
-					<div bind:this={scroller} class="h-full overflow-y-auto">
-						<div class="grid divide-y">
-							{#each thread as item}
-								<div class="py-2 flex gap-3">
-									<div class="shrink-0">
-										<div
-											class="flex items-center justify-center w-8 h-8 border border-white rounded-lg text-loro-green-lighter bg-loro-green-light"
-											class:bg-loro-green-dark={item.role === 'assistant'}
-										>
-											{#if item.role === 'assistant'}
-												<Icon src={Bird} class="w-6 h-6" />
-											{:else}
-												<Icon src={User} class="w-6 h-6" />
-											{/if}
-										</div>
-									</div>
-									<div class="flex-1 mt-1">
-										{#if typeof item.message === 'string'}
-											{item.message}
-										{:else}
-											{#await item.message}
-												<Spinner class="w-6 h-6 text-loro-green-lighter fill-white animate-spin" />
-											{:then stream}
-												<div class="whitespace-pre-wrap">
-													<StreamText
-														{stream}
-														on:chunk={() => (scroller.scrollTop = scroller.scrollHeight)}
-													/>
-												</div>
-											{:catch}
-												<span class="text-red-500">
-													Sorry, the service is temporarily unavailable.
-												</span>
-											{/await}
-										{/if}
-									</div>
-								</div>
-							{/each}
-						</div>
-					</div>
-				{:else}
-					<div class="h-full grid auto-rows-[max-content_auto] gap-3">
-						<div
-							class="text-center py-1 border border-white rounded-lg font-bold bg-loro-green-light"
-						>
-							Make your Pizza Order here!
-						</div>
-
-						<div>
-							<div class="h-full flex flex-col justify-end">
-								<div class="grid grid-cols-2 gap-3">
-									{#each exampleMessages as item}
-										<button
-											class="flex flex-col items-start text-start cursor-pointer rounded-lg border border-white p-4 bg-loro-green-light"
-											on:click={() => submitMessage(item.message)}
-										>
-											<div class="text-sm font-bold">{item.heading}</div>
-											<div class="text-sm text-loro-green-lighter text-opacity-75">
-												{item.subheading}
-											</div>
-										</button>
-									{/each}
-								</div>
+{#if thread.length > 0}
+	<div class="overflow-hidden mr-16">
+		<div bind:this={scroller} class="p-4 h-[400px] overflow-y-auto">
+			<div class="grid divide-y">
+				{#each thread as item}
+					<div class="py-2 flex gap-3">
+						<div class="shrink-0">
+							<div
+								class="flex items-center justify-center w-8 h-8 border border-white rounded-lg text-loro-green-lighter bg-loro-green-light"
+								class:bg-loro-green-dark={item.role === 'assistant'}
+							>
+								{#if item.role === 'assistant'}
+									<Icon src={Bird} class="w-6 h-6" />
+								{:else}
+									<Icon src={User} class="w-6 h-6" />
+								{/if}
 							</div>
 						</div>
+						<div class="flex-1 mt-1">
+							{#if typeof item.message === 'string'}
+								{item.message}
+							{:else}
+								{#await item.message}
+									<Spinner class="w-6 h-6 text-loro-green-lighter fill-white animate-spin" />
+								{:then stream}
+									<div class="whitespace-pre-wrap">
+										<StreamText
+											{stream}
+											on:chunk={() => (scroller.scrollTop = scroller.scrollHeight)}
+										/>
+									</div>
+								{:catch}
+									<span class="text-red-500"> Sorry, the service is temporarily unavailable. </span>
+								{/await}
+							{/if}
+						</div>
 					</div>
-				{/if}
-				<form
-					on:submit|preventDefault={() => {
-						submitMessage(prompt);
-						prompt = '';
-					}}
-				>
-					<div class="relative">
-						<input
-							type="text"
-							bind:value={prompt}
-							placeholder="Try now!"
-							class="border border-white w-full h-11 p-2 pr-11 rounded-md bg-loro-green-light placeholder-loro-green-lighter"
-						/>
-						<button
-							type="submit"
-							class="absolute right-2 top-2 w-7 h-7 flex items-center justify-center rounded-md text-loro-green-lighter bg-loro-green"
-						>
-							<!-- Lucide corner-down-left-->
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="24"
-								height="24"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								class="w-5 h-5"
-								><polyline points="9 10 4 15 9 20" /><path d="M20 4v7a4 4 0 0 1-4 4H4" /></svg
-							>
-						</button>
-					</div>
-				</form>
+				{/each}
 			</div>
 		</div>
 	</div>
+{/if}
+
+<div class="flex items-center gap-4">
+	<form
+		class="flex-1 relative"
+		on:submit|preventDefault={() => {
+			submitMessage(message);
+			message = '';
+		}}
+	>
+		<input
+			bind:this={messageInput}
+			type="text"
+			bind:value={message}
+			placeholder="Faça seu  Pedido de Pizza aqui"
+			class="border border-loro-gray-100 rounded-lg w-full h-20 px-3.5 py-4.5 pr-28"
+		/>
+		<button
+			type="submit"
+			class="absolute right-3.5 top-3.5 w-20 h-14 flex items-center justify-center rounded-lg font-semibold text-loro-white bg-[#E03131]"
+		>
+			Pedir!
+		</button>
+	</form>
+
+	<button class="w-12 h-12 flex justify-center items-center" on:click={() => openSettingDialog()}>
+		<Icon src={Settings} class="w-8 h-8" />
+	</button>
+</div>
+
+<p class="text-2xl mt-8">Ou clique em um dos prompts abaixo para simula uma interação</p>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-10 gap-y-7 mt-8">
+	{#each presetMessages as preset, i}
+		<button
+			class="preset-item flex items-center gap-2.5 p-2.5 border rounded-lg text-start"
+			on:click={() => {
+				submitMessage(preset);
+				messageInput.focus();
+			}}
+		>
+			<img src="/pizza{(i % 5) + 1}.png" alt="" class="w-[50px]" />
+			<span>{preset}</span>
+		</button>
+	{/each}
 </div>
 
 <dialog
@@ -332,3 +279,27 @@
 		</div>
 	</div>
 </dialog>
+
+<style lang="postcss">
+	.preset-item {
+		&:nth-child(5n + 1) {
+			@apply border-[#96F2D7] bg-[#E6FCF5];
+		}
+
+		&:nth-child(5n + 2) {
+			@apply border-[#D0BFFF] bg-[#F8F0FC];
+		}
+
+		&:nth-child(5n + 3) {
+			@apply border-[#BAC8FF] bg-[#EDF2FF];
+		}
+
+		&:nth-child(5n + 4) {
+			@apply border-[#A5D8FF] bg-[#E7F5FF];
+		}
+
+		&:nth-child(5n) {
+			@apply border-[#FFEC99] bg-[#FFF9DB];
+		}
+	}
+</style>

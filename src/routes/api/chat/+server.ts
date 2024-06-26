@@ -9,7 +9,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	// 		const message =
 	// 			'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
 	// 		for (const chunk of message.split(' ')) {
-	// 			controller.enqueue(chunk + ' ');
+	// 			controller.enqueue(chunk + '\n');
 	// 			await new Promise((resolve) => setTimeout(resolve, 100));
 	// 		}
 	// 		controller.close();
