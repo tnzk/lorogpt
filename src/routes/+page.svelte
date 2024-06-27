@@ -124,17 +124,19 @@
 </section>
 
 <section class="relative px-6 py-12 bg-[#F3F0FF] sm:pl-28 sm:pr-40 md:pr-52 lg:pr-96 sm:py-20">
-	<div class="w-full max-w-2xl">
-		<h2 class="font-bold text-3xl text-[#7950F2]">Entre para nossa fila de espera!</h2>
-		<p class="font-light text-xl mt-2">
-			Em breve teremos uma nova versão, cadastre o seu email no campo abaixo e seja uns dos
-			primeiros a receber
-		</p>
+	<div class="relative z-10">
+		<div class="w-full max-w-2xl">
+			<h2 class="font-bold text-3xl text-[#7950F2]">Entre para nossa fila de espera!</h2>
+			<p class="font-light text-xl mt-2">
+				Em breve teremos uma nova versão, cadastre o seu email no campo abaixo e seja uns dos
+				primeiros a receber
+			</p>
+		</div>
+		<div class="mt-10">
+			<SubscribeForm buttonClass="bg-[#9775FA]" />
+		</div>
 	</div>
-	<div class="mt-10">
-		<SubscribeForm buttonClass="bg-[#9775FA]" />
-	</div>
-	<div class="absolute hidden sm:block -bottom-[15vw] right-0">
+	<div class="absolute -bottom-[15vw] right-0 pointer-events-none">
 		<Image base="/pizza-lg" alt="" class="w-[20vw]" />
 	</div>
 </section>
@@ -158,7 +160,7 @@
 			class="aspect-video w-full rounded-xl"
 		></iframe>
 
-		<div class="absolute top-full left-2.5">
+		<div class="absolute top-full left-2.5 pointer-events-none">
 			<Image base="/pizza-slice" alt="" class="w-[25vw]" />
 		</div>
 	</div>

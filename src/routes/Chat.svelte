@@ -210,9 +210,9 @@
 	</div>
 {/if}
 
-<div class="flex items-center gap-4">
+<div class="flex flex-col sm:flex-row items-end sm:items-center gap-2.5">
 	<form
-		class="flex-1 relative"
+		class="flex-1 relative w-full"
 		on:submit|preventDefault={() => {
 			submitMessage(message);
 			message = '';
@@ -223,11 +223,11 @@
 			type="text"
 			bind:value={message}
 			placeholder="Faça seu  Pedido de Pizza aqui"
-			class="border border-loro-gray-100 rounded-lg w-full h-20 px-3.5 py-4.5 pr-28"
+			class="border border-loro-gray-100 rounded-lg w-full h-20 px-3.5 py-4.5 pr-24"
 		/>
 		<button
 			type="submit"
-			class="absolute right-3.5 top-3.5 w-20 h-14 flex items-center justify-center rounded-lg font-semibold text-loro-white bg-[#E03131]"
+			class="absolute right-3.5 top-3 w-20 h-14 flex items-center justify-center rounded-lg font-semibold text-loro-white bg-[#E03131]"
 		>
 			Pedir!
 		</button>
