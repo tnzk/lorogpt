@@ -2,6 +2,7 @@
 	import { ChevronDown } from '@steeze-ui/lucide-icons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import Chat from './Chat.svelte';
+	import Image from './Image.svelte';
 	import SubscribeForm from './SubscribeForm.svelte';
 
 	const faq = [
@@ -35,7 +36,7 @@
 <section class="relative px-6 py-12 sm:pl-28 sm:pr-28 md:pr-40 lg:pr-80 sm:py-20">
 	<div class="relative w-full max-w-7xl mx-auto z-10">
 		<h1>
-			<img src="/logo.png" alt="Loro!" class="w-[108px]" />
+			<Image base="/logo" alt="Loro!" class="w-[108px]" />
 		</h1>
 
 		<h2 class="font-bold text-4xl mt-10">Automatize o Processo de Vendas de sua pizzaria!</h2>
@@ -50,14 +51,14 @@
 	</div>
 
 	<div class="absolute top-0 right-0 pointer-events-none">
-		<img src="/background.png" alt="" class="w-[43vw]" />
+		<Image base="/background" alt="" class="w-[43vw]" />
 	</div>
 </section>
 
 <section class="px-6 py-12 bg-[#FFF9DB] sm:pl-28 sm:pr-28 xl:pr-80 sm:py-14">
 	<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-12">
 		<div>
-			<img src="/icon-bot.png" alt="" class="h-10" />
+			<Image base="/icon-bot" alt="" class="h-10" />
 			<p class="text-[#F08C00] font-bold mt-3.5">Atendimento Instantâneo:</p>
 			<p>
 				Reponda sempre seus clientes prontamente sem a precisar nenhuma interação humana até o
@@ -65,7 +66,7 @@
 			</p>
 		</div>
 		<div>
-			<img src="/icon-chart.png" alt="" class="h-10" />
+			<Image base="/icon-chart" alt="" class="h-10" />
 			<p class="text-[#F08C00] font-bold mt-3.5">Atuação humanizada:</p>
 			<p>
 				A IA não vai ser aquele robô chato e engessado que todo mundo odeia interagir, ele será
@@ -73,7 +74,7 @@
 			</p>
 		</div>
 		<div>
-			<img src="/icon-pencil.png" alt="" class="h-10" />
+			<Image base="/icon-pencil" alt="" class="h-10" />
 			<p class="text-[#F08C00] font-bold mt-3.5">Cardápio Customizado:</p>
 			<p>
 				Altamente customizável para o seu negócio, a edição de cardápio e promoções do Loro é
@@ -81,7 +82,7 @@
 			</p>
 		</div>
 		<div>
-			<img src="/icon-tada.png" alt="" class="h-10" />
+			<Image base="/icon-tada" alt="" class="h-10" />
 			<p class="text-[#F08C00] font-bold mt-3.5">Bônus:</p>
 			<p>
 				Economize com custos operacionais, melhore a acessibilidade e a comunicação e venda mais.
@@ -93,7 +94,7 @@
 <section class="px-6 py-12 sm:pl-28 sm:pr-28 xl:pr-80 sm:pt-4 sm:pb-28">
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-20">
 		<div>
-			<img src="/menu.png" alt="" class="w-full" />
+			<Image base="/menu" alt="" class="w-full" />
 		</div>
 
 		<div class="flex items-center">
@@ -134,7 +135,7 @@
 		<SubscribeForm buttonClass="bg-[#9775FA]" />
 	</div>
 	<div class="absolute hidden sm:block -bottom-[15vw] right-0">
-		<img src="/pizza-lg.png" alt="" class="w-[20vw]" />
+		<Image base="/pizza-lg" alt="" class="w-[20vw]" />
 	</div>
 </section>
 
@@ -158,7 +159,7 @@
 		></iframe>
 
 		<div class="absolute top-full left-2.5">
-			<img src="/pizza-slice.png" alt="" class="w-[25vw]" />
+			<Image base="/pizza-slice" alt="" class="w-[25vw]" />
 		</div>
 	</div>
 </section>
@@ -185,7 +186,7 @@
 <footer class="bg-[#FFD8A8]">
 	<section class="px-6 pt-12 sm:px-28 sm:pt-32">
 		<div class="flex flex-col gap-2.5 md:flex-row md:items-center justify-between">
-			<img src="/logo.png" alt="Loro!" class="w-[140px] shrink-0" />
+			<Image base="/logo" alt="Loro!" class="w-[140px] shrink-0" />
 			<div class="flex-1 max-w-lg">
 				<p class="text-lg">Entre para a lista de espera para versão a premmium</p>
 				<div class="mt-3.5">
@@ -222,7 +223,7 @@
 		</div>
 	</section>
 	<div class="mt-14">
-		<img src="/pizzas.png" alt="" class="w-full" />
+		<Image base="/pizzas" alt="" class="w-full" />
 	</div>
 </footer>
 

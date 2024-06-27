@@ -3,6 +3,7 @@
 	import { Bird, Settings, User, X } from '@steeze-ui/lucide-icons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { tick } from 'svelte';
+	import Image from './Image.svelte';
 	import PizzariaEditor from './PizzariaEditor.svelte';
 	import Spinner from './Spinner.svelte';
 	import StreamText from './StreamText.svelte';
@@ -248,7 +249,7 @@
 				messageInput.focus();
 			}}
 		>
-			<img src="/pizza{(i % 5) + 1}.png" alt="" class="w-[50px]" />
+			<Image base="/pizza{(i % 5) + 1}" alt="" class="w-[50px]" />
 			<span>{preset}</span>
 		</button>
 	{/each}
