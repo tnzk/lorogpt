@@ -9,10 +9,13 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const nameTag = process.env.NODE_ENV === 'production' ? '' : '[development] ';
+
 async function main() {
 	let assistantId = process.env.OPENAI_ASSISTANT_ID;
+
 	const params = {
-		name: 'LoroGPT Assistant',
+		name: `${nameTag}LoroGPT Assistant (pt-br)`,
 		instructions: await readFile(path.resolve(__dirname, 'instructions.txt'), 'utf-8'),
 		model: 'gpt-4o',
 		tools: [
