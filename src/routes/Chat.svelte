@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { defaultPizzariaSetting, streamPerParagraph } from '$lib/chat';
 	import type { PizzariaSetting } from '$lib/types';
 	import { Bird, Settings, User, X } from '@steeze-ui/lucide-icons';
 	import { Icon } from '@steeze-ui/svelte-icon';
@@ -6,7 +7,7 @@
 	import Image from './Image.svelte';
 	import PizzariaEditor from './PizzariaEditor.svelte';
 	import Spinner from './Spinner.svelte';
-	import StreamText from './StreamText.svelte';
+	import StreamParagraph from './StreamParagraph.svelte';
 
 	const presetMessages = [
 		'Uma pizza de champignon',
@@ -26,112 +27,7 @@
 	let message = '';
 	let threadId: string | null = null;
 	let thread: { role: string; message: string | Promise<ReadableStream> }[] = [];
-	let pizzariaSetting: PizzariaSetting = {
-		pizzaria_name: "Luigi's",
-		sizes: [
-			{
-				name: 'Small',
-				max_flavors: 1
-			},
-			{
-				name: 'Medium',
-				max_flavors: 2
-			},
-			{
-				name: 'Large',
-				max_flavors: 3
-			}
-		],
-		flavors: [
-			{
-				name: 'Margherita',
-				ingredients: ['Tomato Sauce', 'Mozzarella Cheese', 'Basil'],
-				price: {
-					Small: 40.0,
-					Medium: 50.0,
-					Large: 70.0
-				}
-			},
-			{
-				name: 'Pepperoni',
-				ingredients: ['Tomato Sauce', 'Mozzarella Cheese', 'Pepperoni'],
-				price: {
-					Small: 40.0,
-					Medium: 50.0,
-					Large: 70.0
-				}
-			},
-			{
-				name: 'Four Cheese',
-				ingredients: [
-					'Tomato Sauce',
-					'Mozzarella Cheese',
-					'Parmesan Cheese',
-					'Gorgonzola Cheese',
-					'Provolone Cheese'
-				],
-				price: {
-					Small: 45.0,
-					Medium: 55.0,
-					Large: 75.0
-				}
-			},
-			{
-				name: 'Chicken with Catupiry',
-				ingredients: ['Tomato Sauce', 'Mozzarella Cheese', 'Shredded Chicken', 'Catupiry Cheese'],
-				price: {
-					Small: 50.0,
-					Medium: 60.0,
-					Large: 80.0
-				}
-			},
-			{
-				name: 'Calabrese',
-				ingredients: ['Tomato Sauce', 'Mozzarella Cheese', 'Calabrese Sausage', 'Onions'],
-				price: {
-					Small: 55.0,
-					Medium: 65.0,
-					Large: 85.0
-				}
-			},
-			{
-				name: 'Portuguese',
-				ingredients: [
-					'Tomato Sauce',
-					'Mozzarella Cheese',
-					'Ham',
-					'Onions',
-					'Boiled Eggs',
-					'Green Peas',
-					'Olives'
-				],
-				price: {
-					Small: 60.0,
-					Medium: 70.0,
-					Large: 90.0
-				}
-			}
-		],
-		stuffed_crust: 5.0,
-		soft_drinks: [
-			{
-				name: 'Coca-Cola',
-				price: 15.0
-			},
-			{
-				name: 'Guaraná Antarctica',
-				price: 15.0
-			},
-			{
-				name: 'Fanta Orange',
-				price: 15.0
-			},
-			{
-				name: 'Sprite',
-				price: 15.0
-			}
-		]
-	};
+	let pizzariaSetting: PizzariaSetting = defaultPizzariaSetting();
 
 	function openSettingDialog() {
 		settingDialog.showModal();
@@ -153,14 +49,7 @@
 		}
 		threadId = res.headers.get('x-loro-thread-id');
 		if (res.body) {
-			const decoder = new TextDecoder();
-			return res.body.pipeThrough(
-				new TransformStream<Uint8Array, string>({
-					transform(chunk, controller) {
-						controller.enqueue(decoder.decode(chunk));
-					}
-				})
-			);
+			return streamPerParagraph(res.body);
 		} else {
 			throw new Error('Missing stream');
 		}
@@ -193,7 +82,7 @@
 									<Spinner class="w-6 h-6 text-loro-green-lighter fill-white animate-spin" />
 								{:then stream}
 									<div class="whitespace-pre-wrap">
-										<StreamText
+										<StreamParagraph
 											{stream}
 											on:chunk={() => (scroller.scrollTop = scroller.scrollHeight)}
 										/>
