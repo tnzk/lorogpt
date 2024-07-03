@@ -20,6 +20,17 @@ export default {
 				'loro-white': '#FFFFFF',
 				'loro-gray-100': '#CED4DA',
 				'loro-gray-200': '#868E96'
+			},
+			fontSize: {
+				'1.5xl': '1.375rem',
+				'3.5xl': '2rem',
+				'4.5xl': '2.375rem'
+			},
+			margin: {
+				17.5: '4.375rem'
+			},
+			padding: {
+				17.5: '4.375rem'
 			}
 		}
 	},

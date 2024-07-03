@@ -35,6 +35,6 @@
 		{/each}
 	{/each}
 	{#if streaming}
-		<Spinner class="w-6 h-6 text-loro-green-lighter fill-white animate-spin" />
+		<Spinner class="w-5 h-5 text-loro-green-lighter fill-[#37B24D] animate-spin" />
 	{/if}
 </div>
