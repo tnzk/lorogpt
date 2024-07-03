@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { parseParagraph } from '$lib/chat';
 	import { createEventDispatcher, onMount, tick } from 'svelte';
 	import Spinner from './Spinner.svelte';
 
@@ -25,7 +26,13 @@
 
 <div class="grid gap-2.5">
 	{#each paragraphs as paragraph}
-		<p>{paragraph}</p>
+		{#each parseParagraph(paragraph) as token}
+			{#if token.type === 'paragraph'}
+				<p>{token.text}</p>
+			{:else if token.type === 'menu'}
+				<a href="/menu.pdf" target="_blank" class="text-[#37B24D] underline">menu de download</a>
+			{/if}
+		{/each}
 	{/each}
 	{#if streaming}
 		<Spinner class="w-6 h-6 text-loro-green-lighter fill-white animate-spin" />

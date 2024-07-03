@@ -1,5 +1,7 @@
 import type { PizzariaSetting } from './types';
 
+export type Token = { type: 'paragraph'; text: string } | { type: 'menu' };
+
 export const defaultPizzariaSetting = (): PizzariaSetting => ({
 	pizzaria_name: "Luigi's",
 	sizes: [
@@ -161,4 +163,22 @@ function createDelayTransformer(delay: number) {
 			lastTime = Date.now();
 		}
 	});
+}
+
+export function parseParagraph(paragraph: string): Token[] {
+	const fullMenuMarker = '[FULL_MENU]';
+	if (paragraph.includes(fullMenuMarker)) {
+		const [before, after] = paragraph.split(fullMenuMarker);
+		const tokens: Token[] = [];
+		if (before.length > 0) {
+			tokens.push({ type: 'paragraph', text: before });
+		}
+		tokens.push({ type: 'menu' });
+		if (after.length > 0) {
+			tokens.push({ type: 'paragraph', text: after });
+		}
+		return tokens;
+	} else {
+		return [{ type: 'paragraph', text: paragraph }];
+	}
 }
