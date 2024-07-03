@@ -65,7 +65,8 @@ async function main() {
 						required: ['sabores', 'tamanho', 'borda_recheada', 'refrigerantes']
 					}
 				}
-			}
+			},
+			{ type: 'file_search' }
 		]
 	};
 
