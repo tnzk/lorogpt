@@ -1,25 +1,22 @@
 <script lang="ts">
-	import type { PizzariaSetting } from '$lib/types';
+	import type { PizzaMenuSetting } from '$lib/menu';
 	import { X } from '@steeze-ui/lucide-icons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 
-	export let setting: PizzariaSetting;
+	export let setting: PizzaMenuSetting;
 </script>
 
-<label class="form-control">
-	<div class="label">Pizzaria name</div>
-	<input type="text" bind:value={setting.pizzaria_name} class="input" />
-</label>
-
 <div class="form-control">
-	<div class="label">Sizes</div>
+	<div class="label">Tamanhos</div>
 	{#if setting.sizes.length > 0}
 		<div class="table-container">
 			<table class="table">
 				<thead>
 					<tr>
-						<th>Name</th>
-						<th>Max flavors</th>
+						<th>Nome</th>
+						<th>Máximo sabores</th>
+						<th>Fatias</th>
+						<th>Serve quantas pessoas</th>
 						<th />
 					</tr>
 				</thead>
@@ -33,6 +30,16 @@
 								<input
 									type="number"
 									bind:value={setting.sizes[i].max_flavors}
+									class="input w-full"
+								/>
+							</td>
+							<td>
+								<input type="number" bind:value={setting.sizes[i].slices} class="input w-full" />
+							</td>
+							<td>
+								<input
+									type="number"
+									bind:value={setting.sizes[i].serves_how_many_people}
 									class="input w-full"
 								/>
 							</td>
@@ -55,22 +62,26 @@
 	{/if}
 	<button
 		class="btn btn-default text-blue-600 mt-1"
-		on:click={() => (setting.sizes = [...setting.sizes, { name: '', max_flavors: 0 }])}
+		on:click={() =>
+			(setting.sizes = [
+				...setting.sizes,
+				{ name: '', max_flavors: 1, slices: 2, serves_how_many_people: 1 }
+			])}
 	>
-		Add size
+		Adicionar tamanho
 	</button>
 </div>
 
 <div class="form-control">
-	<div class="label">Flavors</div>
+	<div class="label">Sabores</div>
 	{#if setting.flavors.length > 0}
 		<div class="table-container">
 			<table class="table">
 				<thead>
 					<tr>
-						<th>Name</th>
-						<th>Ingredients</th>
-						<th>Prices</th>
+						<th>Nome</th>
+						<th>Ingredientes</th>
+						<th>Preços</th>
 						<th />
 					</tr>
 				</thead>
@@ -110,7 +121,7 @@
 											on:click={() =>
 												(setting.flavors[i].ingredients = [...setting.flavors[i].ingredients, ''])}
 										>
-											Add ingredient
+											Adicionar ingrediente
 										</button>
 									</div>
 								</div>
@@ -151,23 +162,23 @@
 		on:click={() =>
 			(setting.flavors = [...setting.flavors, { name: '', ingredients: [], price: {} }])}
 	>
-		Add flavor
+		Adicionar sabor
 	</button>
 </div>
 
 <label class="form-control">
-	<div class="label">Stuffed crust</div>
+	<div class="label">Borda recheada</div>
 	<input type="number" bind:value={setting.stuffed_crust} class="input" />
 </label>
 
 <div class="form-control">
-	<div class="label">Soft drinks</div>
+	<div class="label">Refrigerantes</div>
 	{#if setting.soft_drinks.length > 0}
 		<table class="table">
 			<thead>
 				<tr>
-					<th>Name</th>
-					<th>Price</th>
+					<th>Nome</th>
+					<th>Preço</th>
 					<th />
 				</tr>
 			</thead>
@@ -200,7 +211,7 @@
 		class="btn btn-default text-blue-600 mt-1"
 		on:click={() => (setting.soft_drinks = [...setting.soft_drinks, { name: '', price: 0 }])}
 	>
-		Add soft drink
+		Adicionar refrigerante
 	</button>
 </div>
 

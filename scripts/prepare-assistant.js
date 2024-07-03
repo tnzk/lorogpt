@@ -23,37 +23,46 @@ async function main() {
 				type: 'function',
 				function: {
 					name: 'calculatePrice',
-					description: 'Calculate total shipping price.',
+					description: 'Calcular o preço total do frete.',
 					parameters: {
 						type: 'object',
 						properties: {
-							flavors: {
+							// flavors
+							sabores: {
 								type: 'array',
 								items: {
 									type: 'string'
 								},
 								description:
-									'List of the names of the pizza flavor ordered by the customer. Pass the value of the `name` field under `flavors` in the setting JSON.'
+									// 'List of the names of the pizza flavor ordered by the customer. Pass the value of the `name` field under `flavors` in the setting JSON.'
+									'Lista dos nomes dos sabores de pizza pedidos pelo cliente. Passe o valor do campo `nome` em `sabores` na configuração JSON.'
 							},
-							size: {
+							// size
+							tamanho: {
 								type: 'string',
 								description:
-									'The size of the pizza ordered by the customer. Pass the value of the `name` field under `sizes` in the setting JSON.'
+									// 'The size of the pizza ordered by the customer. Pass the value of the `name` field under `sizes` in the setting JSON.'
+									'O tamanho da pizza pedida pelo cliente. Passe o valor do campo `nome` em `tamanhos` na configuração JSON.'
 							},
-							stuffed_crust: {
+							// stuffed_crust
+							borda_recheada: {
 								type: 'boolean',
-								description: 'Whether the customer has added stuffed crust.'
+								description:
+									// 'Whether the customer has added stuffed crust.'
+									'Se o cliente adicionou borda recheada.'
 							},
-							soft_drinks: {
+							// soft_drinks
+							refrigerantes: {
 								type: 'array',
 								items: {
 									type: 'string'
 								},
 								description:
-									'List of the names of soft drinks ordered by the customer. Pass the value of the `name` field under `soft_drinks` in the setting JSON.'
+									// 'List of the names of soft drinks ordered by the customer. Pass the value of the `name` field under `soft_drinks` in the setting JSON.'
+									'Lista dos nomes dos refrigerantes pedidos pelo cliente. Passe o valor do campo `nome` em `refrigerantes` na configuração JSON.'
 							}
 						},
-						required: ['flavor', 'size', 'stuffed_crust', 'soft_drinks']
+						required: ['sabores', 'tamanho', 'borda_recheada', 'refrigerantes']
 					}
 				}
 			}

@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { defaultPizzariaSetting, streamPerParagraph } from '$lib/chat';
-	import type { PizzariaSetting } from '$lib/types';
+	import type { PizzaMenuSetting } from '$lib/menu';
 	import { Bird, Settings, User, X } from '@steeze-ui/lucide-icons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { tick } from 'svelte';
 	import Image from './Image.svelte';
-	import PizzariaEditor from './PizzariaEditor.svelte';
+	import MenuBuilder from './MenuBuilder.svelte';
 	import Spinner from './Spinner.svelte';
 	import StreamParagraph from './StreamParagraph.svelte';
 
@@ -27,7 +27,7 @@
 	let message = '';
 	let threadId: string | null = null;
 	let thread: { role: string; message: string | Promise<ReadableStream> }[] = [];
-	let pizzariaSetting: PizzariaSetting = defaultPizzariaSetting();
+	let pizzariaSetting: PizzaMenuSetting = defaultPizzariaSetting();
 
 	function openSettingDialog() {
 		settingDialog.showModal();
@@ -151,7 +151,7 @@
 	<div class=" flex h-dvh w-screen items-center justify-center px-4 sm:px-12 py-12">
 		<div class="relative w-full max-w-screen-md h-full bg-white">
 			<div class="w-full h-full overflow-y-auto px-4 py-8 sm:px-12 sm:py-12">
-				<PizzariaEditor bind:setting={pizzariaSetting} />
+				<MenuBuilder bind:setting={pizzariaSetting} />
 			</div>
 			<form method="dialog" class="absolute top-0 right-0 m-3">
 				<button

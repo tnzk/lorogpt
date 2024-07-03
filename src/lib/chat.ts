@@ -1,90 +1,95 @@
-import type { PizzariaSetting } from './types';
+import type { PizzaMenuSetting } from './menu';
 
 export type Token = { type: 'paragraph'; text: string } | { type: 'menu' };
 
-export const defaultPizzariaSetting = (): PizzariaSetting => ({
-	pizzaria_name: "Luigi's",
+export const defaultPizzariaSetting = (): PizzaMenuSetting => ({
 	sizes: [
 		{
-			name: 'Small',
-			max_flavors: 1
+			name: 'Pequena',
+			max_flavors: 1,
+			slices: 2,
+			serves_how_many_people: 1
 		},
 		{
-			name: 'Medium',
-			max_flavors: 2
+			name: 'Média',
+			max_flavors: 2,
+			slices: 4,
+			serves_how_many_people: 2
 		},
 		{
-			name: 'Large',
-			max_flavors: 3
+			name: 'Grande',
+			max_flavors: 3,
+			slices: 8,
+			serves_how_many_people: 4
 		}
 	],
 	flavors: [
 		{
 			name: 'Margherita',
-			ingredients: ['Tomato Sauce', 'Mozzarella Cheese', 'Basil'],
+			ingredients: ['Molho de Tomate', 'Queijo Mussarela', 'Manjericão'],
 			price: {
-				Small: 40.0,
-				Medium: 50.0,
-				Large: 70.0
+				Pequena: 40.0,
+				Média: 50.0,
+				Grande: 70.0
 			}
 		},
 		{
-			name: 'Pepperoni',
-			ingredients: ['Tomato Sauce', 'Mozzarella Cheese', 'Pepperoni'],
-			price: {
-				Small: 40.0,
-				Medium: 50.0,
-				Large: 70.0
-			}
-		},
-		{
-			name: 'Four Cheese',
+			name: 'Quatro Queijos',
 			ingredients: [
-				'Tomato Sauce',
-				'Mozzarella Cheese',
-				'Parmesan Cheese',
-				'Gorgonzola Cheese',
-				'Provolone Cheese'
+				'Molho de Tomate',
+				'Queijo Mussarela',
+				'Queijo Parmesão',
+				'Queijo Gorgonzola',
+				'Queijo Provolone'
 			],
 			price: {
-				Small: 45.0,
-				Medium: 55.0,
-				Large: 75.0
+				Pequena: 45.0,
+				Média: 55.0,
+				Grande: 75.0
 			}
 		},
 		{
-			name: 'Chicken with Catupiry',
-			ingredients: ['Tomato Sauce', 'Mozzarella Cheese', 'Shredded Chicken', 'Catupiry Cheese'],
+			name: 'Champignon',
+			ingredients: ['Molho de Tomate', 'Queijo', 'Champignon', 'Pimentão'],
 			price: {
-				Small: 50.0,
-				Medium: 60.0,
-				Large: 80.0
+				Pequena: 50.0,
+				Média: 60.0,
+				Grande: 80.0
 			}
 		},
 		{
-			name: 'Calabrese',
-			ingredients: ['Tomato Sauce', 'Mozzarella Cheese', 'Calabrese Sausage', 'Onions'],
+			name: 'Calabresa',
+			ingredients: ['Molho de Tomate', 'Queijo Mussarela', 'Linguiça Calabresa', 'Cebolas'],
 			price: {
-				Small: 55.0,
-				Medium: 65.0,
-				Large: 85.0
+				Pequena: 55.0,
+				Média: 65.0,
+				Grande: 85.0
 			}
 		},
 		{
-			name: 'Portuguese',
+			name: 'Portuguesa',
 			ingredients: [
-				'Tomato Sauce',
-				'Mozzarella Cheese',
-				'Ham',
-				'Onions',
-				'Boiled Eggs',
-				'Green Peas',
-				'Olives'
+				'Molho de Tomate',
+				'Queijo Mussarela',
+				'Presunto',
+				'Cebolas',
+				'Ovos Cozidos',
+				'Ervilhas',
+				'Azeitonas'
 			],
 			price: {
-				Small: 60.0,
-				Medium: 70.0,
-				Large: 90.0
+				Pequena: 60.0,
+				Média: 70.0,
+				Grande: 90.0
+			}
+		},
+		{
+			name: 'Vegetariana',
+			ingredients: ['Ervilhas', 'Brócolis', 'Rúcula'],
+			price: {
+				Pequena: 40.0,
+				Média: 50.0,
+				Grande: 60.0
 			}
 		}
 	],

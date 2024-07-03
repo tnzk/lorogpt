@@ -1,6 +1,7 @@
 import { env } from '$env/dynamic/private';
 import OpenAI from 'openai';
-import type { PizzariaSetting } from './types';
+import type { PizzaMenuSetting } from './menu';
+import { translateMenuSetting, type PizzaMenuSettingPtbr } from './menu';
 
 const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
 
@@ -8,7 +9,7 @@ export async function sendMessageToAssistant(
 	assistantId: string,
 	threadId: string | null,
 	message: string,
-	setting: PizzariaSetting
+	setting: PizzaMenuSetting
 ): Promise<{ stream: ReadableStream<string>; threadId: string }> {
 	if (!threadId) {
 		const thread = await openai.beta.threads.create({
@@ -16,9 +17,9 @@ export async function sendMessageToAssistant(
 				{
 					role: 'user',
 					content: [
-						'Use the setting below:',
+						'Use a configuração abaixo:',
 						'```',
-						JSON.stringify(setting, undefined, 2),
+						JSON.stringify(translateMenuSetting(setting), undefined, 2),
 						'```'
 					].join('\n')
 				}
@@ -46,7 +47,10 @@ export async function sendMessageToAssistant(
 							let output: string | undefined;
 							switch (toolCall.function.name) {
 								case 'calculatePrice':
-									const price = calculatePrice(JSON.parse(toolCall.function.arguments), setting);
+									const price = calculatePrice(
+										JSON.parse(toolCall.function.arguments),
+										translateMenuSetting(setting)
+									);
 									output = price.toString();
 									break;
 							}
@@ -101,22 +105,22 @@ export async function sendMessageToAssistant(
 }
 
 function calculatePrice(
-	input: { flavors: string[]; size: string; stuffed_crust: boolean; soft_drinks: string[] },
-	setting: PizzariaSetting
+	input: { sabores: string[]; tamanho: string; borda_recheada: boolean; refrigerantes: string[] },
+	setting: PizzaMenuSettingPtbr
 ) {
 	console.log(input);
 	const sum = (nums: number[]) => nums.reduce((a, n) => a + n, 0);
 	const pizzaPrice = sum(
-		input.flavors.map((name) => {
-			const flavor = setting.flavors.find((flavor) => flavor.name === name)!;
-			return flavor.price[input.size] / input.flavors.length;
+		input.sabores.map((name) => {
+			const flavor = setting.sabores.find((flavor) => flavor.nome === name)!;
+			return flavor.preço[input.tamanho] / input.sabores.length;
 		})
 	);
-	const stuffedCrustPrice = input.stuffed_crust ? setting.stuffed_crust : 0;
+	const stuffedCrustPrice = input.borda_recheada ? setting.borda_recheada : 0;
 	const softDrinkPrice = sum(
-		input.soft_drinks.map((name) => {
-			const drink = setting.soft_drinks.find((drink) => drink.name === name)!;
-			return drink.price;
+		input.refrigerantes.map((name) => {
+			const drink = setting.refrigerantes.find((drink) => drink.nome === name)!;
+			return drink.preço;
 		})
 	);
 	const total = sum([pizzaPrice, stuffedCrustPrice, softDrinkPrice]);
