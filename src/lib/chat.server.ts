@@ -1,9 +1,11 @@
 import { env } from '$env/dynamic/private';
+import { Client as LangSmith, RunTree } from 'langsmith';
 import OpenAI from 'openai';
 import type { PizzaMenuSetting } from './menu';
 import { translateMenuSetting, type PizzaMenuSettingPtbr } from './menu';
 
 const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
+const langsmith = new LangSmith({ apiKey: env.LANGSMITH_API_KEY });
 
 export async function sendMessageToAssistant(
 	assistantId: string,
@@ -28,13 +30,57 @@ export async function sendMessageToAssistant(
 		threadId = thread.id;
 	}
 
+	const trace = new RunTree({
+		client: langsmith,
+		tracingEnabled: env.LANGSMITH_TRACING_V2 === 'true',
+		name: 'Chat message',
+		run_type: 'chain',
+		inputs: { message, setting },
+		metadata: {
+			thread_id: threadId
+		}
+	});
+
 	await openai.beta.threads.messages.create(threadId, { role: 'user', content: message });
 
 	const run = openai.beta.threads.runs.stream(threadId, { assistant_id: assistantId });
 	let runningAction = false;
 	let streamEnd = false;
+	let buffer = '';
 	const stream = new ReadableStream({
-		start(controller) {
+		start(_controller) {
+			// Wrap the original controller to trace output.
+			const controller = {
+				enqueue(chunk?: any) {
+					_controller.enqueue(chunk);
+					if (chunk) {
+						buffer += chunk;
+					}
+				},
+				close() {
+					try {
+						trace.end({ response: buffer });
+						trace.postRun().finally(() => {
+							_controller.close();
+						});
+					} catch (traceError) {
+						console.error(traceError);
+						_controller.close();
+					}
+				},
+				error(e?: any) {
+					try {
+						trace.end({ response: buffer, error: e.toString() });
+						trace.postRun().finally(() => {
+							_controller.error(e);
+						});
+					} catch (traceError) {
+						console.error(traceError);
+						_controller.error(e);
+					}
+				}
+			};
+
 			run
 				.on('textDelta', (textDelta, snapshot) => {
 					controller.enqueue(textDelta.value);
