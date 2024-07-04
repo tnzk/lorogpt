@@ -6,13 +6,17 @@ import { translateMenuSetting, type PizzaMenuSettingPtbr } from './menu';
 
 const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
 const langsmith = new LangSmith({ apiKey: env.LANGSMITH_API_KEY });
+const tokenUsageLimitUsd = parseFloat(env.TOKEN_USAGE_LIMIT_USD);
 
 export async function sendMessageToAssistant(
+	userId: string,
 	assistantId: string,
 	threadId: string | null,
 	message: string,
 	setting: PizzaMenuSetting
 ): Promise<{ stream: ReadableStream<string>; threadId: string }> {
+	const tokenUsagePromise = getTotalTokenUsage(userId);
+
 	if (!threadId) {
 		const thread = await openai.beta.threads.create({
 			messages: [
@@ -36,58 +40,36 @@ export async function sendMessageToAssistant(
 		name: 'Chat message',
 		run_type: 'chain',
 		inputs: { message, setting },
+		start_time: Date.now(),
 		metadata: {
-			thread_id: threadId
+			thread_id: threadId,
+			user_id: userId
+		}
+	});
+	const streamingTrace = trace.createChild({
+		name: 'OpenAI streaming',
+		run_type: 'llm',
+		metadata: {
+			user_id: userId
 		}
 	});
 
 	await openai.beta.threads.messages.create(threadId, { role: 'user', content: message });
 
 	const run = openai.beta.threads.runs.stream(threadId, { assistant_id: assistantId });
-	let runningAction = false;
-	let streamEnd = false;
-	let buffer = '';
 	const stream = new ReadableStream({
-		start(_controller) {
-			// Wrap the original controller to trace output.
-			const controller = {
-				enqueue(chunk?: any) {
-					_controller.enqueue(chunk);
-					if (chunk) {
-						buffer += chunk;
-					}
-				},
-				close() {
-					try {
-						trace.end({ response: buffer });
-						trace.postRun().finally(() => {
-							_controller.close();
-						});
-					} catch (traceError) {
-						console.error(traceError);
-						_controller.close();
-					}
-				},
-				error(e?: any) {
-					try {
-						trace.end({ response: buffer, error: e.toString() });
-						trace.postRun().finally(() => {
-							_controller.error(e);
-						});
-					} catch (traceError) {
-						console.error(traceError);
-						_controller.error(e);
-					}
-				}
-			};
+		start(controller) {
+			let buffer = '';
 
 			run
 				.on('textDelta', (textDelta, snapshot) => {
-					controller.enqueue(textDelta.value);
+					if (textDelta.value) {
+						controller.enqueue(textDelta.value);
+						buffer += textDelta.value;
+					}
 				})
 				.on('event', async (event) => {
 					if (event.event === 'thread.run.requires_action') {
-						runningAction = true;
 						const toolCalls = event.data.required_action?.submit_tool_outputs.tool_calls ?? [];
 						for (const toolCall of toolCalls) {
 							let output: string | undefined;
@@ -119,33 +101,74 @@ export async function sendMessageToAssistant(
 										const data = event.data.delta.content?.[0];
 										if (data?.type === 'text' && data.text?.value) {
 											controller.enqueue(data.text.value);
+											buffer += data.text.value;
+										}
+									} else if (event.event === 'thread.run.completed') {
+										try {
+											streamingTrace.end({
+												usage_metadata: {
+													input_tokens: event.data.usage?.prompt_tokens,
+													output_tokens: event.data.usage?.completion_tokens,
+													total_tokens: event.data.usage?.total_tokens
+												}
+											});
+											trace.end({ response: buffer }, undefined, Date.now());
+											await trace.postRun(false);
+										} finally {
+											controller.close();
 										}
 									}
 								}
 							}
 						}
-						if (streamEnd) {
+					} else if (event.event === 'thread.run.completed') {
+						try {
+							streamingTrace.end({
+								usage_metadata: {
+									input_tokens: event.data.usage?.prompt_tokens,
+									output_tokens: event.data.usage?.completion_tokens,
+									total_tokens: event.data.usage?.total_tokens
+								}
+							});
+							trace.end({ response: buffer }, undefined, Date.now());
+							await trace.postRun(false);
+						} catch (traceError) {
+							console.error(traceError);
+						} finally {
 							controller.close();
 						}
-						runningAction = false;
 					}
 				})
-				.on('error', (error) => {
+				.on('error', async (error) => {
 					console.error(error);
-					controller.error(error);
-				})
-				.on('end', () => {
-					if (runningAction) {
-						streamEnd = true;
-					} else {
-						controller.close();
+
+					try {
+						streamingTrace.end();
+						trace.end({ response: buffer }, error.toString(), Date.now());
+						await trace.postRun();
+					} catch (traceError) {
+						console.error(traceError);
+					} finally {
+						controller.error(error);
 					}
 				});
+			// NOTE: Without this, the entire Node process would terminate when the stream aborts.
+			// ref. https://github.com/openai/openai-node/issues/682#issuecomment-1956973599
+			run.finalMessages().catch((error) => {
+				console.error(error);
+			});
 		},
 		cancel() {
 			run.abort();
 		}
 	});
+
+	const { inputTokens, outputTokens } = await tokenUsagePromise;
+	const tokenUsageUsd = calculateTokenUsageUsd(inputTokens, outputTokens);
+	if (tokenUsageUsd > tokenUsageLimitUsd) {
+		await stream.cancel();
+		throw new Error('Usage limit reached');
+	}
 
 	return { stream, threadId };
 }
@@ -172,4 +195,32 @@ function calculatePrice(
 	const total = sum([pizzaPrice, stuffedCrustPrice, softDrinkPrice]);
 	console.log(`Total: ${total}`);
 	return total;
+}
+
+async function getTotalTokenUsage(
+	userId: string
+): Promise<{ inputTokens: number; outputTokens: number }> {
+	const runs = langsmith.listRuns({
+		projectName: 'default',
+		runType: 'llm',
+		filter: `and(eq(metadata_key, 'user_id'), eq(metadata_value, '${userId}'))`
+	});
+	let inputTokens = 0;
+	let outputTokens = 0;
+	for await (const run of runs) {
+		inputTokens += run.prompt_tokens ?? 0;
+		outputTokens += run.completion_tokens ?? 0;
+	}
+	return { inputTokens, outputTokens };
+}
+
+// ref. https://openai.com/api/pricing/
+function calculateTokenUsageUsd(inputTokens: number, outputTokens: number): number {
+	// gpt-4o pricing
+	const inputRatePer1M = 5.0;
+	const outputRatePer1M = 15.0;
+
+	const inputUsage = (inputTokens * inputRatePer1M) / 1_000_000;
+	const outputUsage = (outputTokens * outputRatePer1M) / 1_000_000;
+	return inputUsage + outputUsage;
 }

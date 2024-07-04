@@ -102,9 +102,15 @@
 													on:chunk={() => (scroller.scrollTop = scroller.scrollHeight)}
 												/>
 											</div>
-										{:catch}
+										{:catch e}
 											<span class="text-red-500">
-												Sorry, the service is temporarily unavailable.
+												{#if e.message.startsWith('429')}
+													<!-- Sorry, you have reached the usage limit. -->
+													Desculpe, você atingiu o limite de uso.
+												{:else}
+													<!-- Sorry, the service is temporarily unavailable. -->
+													Desculpe, o serviço está temporariamente indisponível.
+												{/if}
 											</span>
 										{/await}
 									{/if}

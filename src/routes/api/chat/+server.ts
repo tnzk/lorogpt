@@ -3,7 +3,7 @@ import { sendMessageToAssistant } from '$lib/chat.server';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ cookies, request }) => {
 	// const dummyStream = new ReadableStream({
 	// 	async start(controller) {
 	// 		const message =
@@ -29,6 +29,12 @@ export const POST: RequestHandler = async ({ request }) => {
 		error(500);
 	}
 
+	let userId = cookies.get('loro_session');
+	if (!userId) {
+		userId = crypto.randomUUID();
+		cookies.set('loro_session', userId, { path: '/', maxAge: 7 * 24 * 60 * 60 });
+	}
+
 	const { threadId = null, message, setting } = await request.json();
 	if (!(threadId === null || (typeof threadId === 'string' && threadId.length <= 256))) {
 		error(400, 'Bad Request');
@@ -40,12 +46,26 @@ export const POST: RequestHandler = async ({ request }) => {
 		error(400, 'Bad Request');
 	}
 
-	const res = await sendMessageToAssistant(env.OPENAI_ASSISTANT_ID, threadId, message, setting);
+	try {
+		const res = await sendMessageToAssistant(
+			userId,
+			env.OPENAI_ASSISTANT_ID,
+			threadId,
+			message,
+			setting
+		);
 
-	return new Response(res.stream, {
-		headers: {
-			'content-type': 'text/plain',
-			'x-loro-thread-id': res.threadId
+		return new Response(res.stream, {
+			headers: {
+				'content-type': 'text/plain',
+				'x-loro-thread-id': res.threadId
+			}
+		});
+	} catch (e) {
+		if (e instanceof Error && e.message === 'Usage limit reached') {
+			error(429);
+		} else {
+			throw e;
 		}
-	});
+	}
 };
