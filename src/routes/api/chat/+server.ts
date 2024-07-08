@@ -4,25 +4,31 @@ import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ cookies, request }) => {
-	// const dummyStream = new ReadableStream({
-	// 	async start(controller) {
-	// 		const message =
-	// 			'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
-	// 		for (let i = 0; i < 3; i++) {
-	// 			for (const chunk of message.split(' ')) {
-	// 				controller.enqueue(chunk + ' ');
-	// 				await new Promise((resolve) => setTimeout(resolve, 100));
+	// 	const dummyStream = new ReadableStream({
+	// 		async start(controller) {
+	// 			const message = `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+	// - **Sample 1**: R$80
+	// - **Sample 2**: R$90
+	// - **Sample 3**: R$100
+
+	// Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+	// 			`;
+	// 			for (let i = 0; i < 1; i++) {
+	// 				for (const chunk of message.split(' ')) {
+	// 					controller.enqueue(chunk + ' ');
+	// 					await new Promise((resolve) => setTimeout(resolve, 100));
+	// 				}
+	// 				controller.enqueue('\n\n');
 	// 			}
-	// 			controller.enqueue('\n\n');
+	// 			controller.close();
 	// 		}
-	// 		controller.close();
-	// 	}
-	// });
-	// return new Response(dummyStream, {
-	// 	headers: {
-	// 		'content-type': 'text/plain'
-	// 	}
-	// });
+	// 	});
+	// 	return new Response(dummyStream, {
+	// 		headers: {
+	// 			'content-type': 'text/plain'
+	// 		}
+	// 	});
 
 	if (!env.OPENAI_ASSISTANT_ID) {
 		console.error('Must set OPENAI_ASSISTANT_ID');

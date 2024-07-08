@@ -1,6 +1,8 @@
+import DOMPurify from 'dompurify';
+import { marked } from 'marked';
 import type { PizzaMenuSetting } from './menu';
 
-export type Token = { type: 'paragraph'; text: string } | { type: 'menu' };
+export type Token = { type: 'paragraph'; text: string; html: string } | { type: 'menu' };
 
 export const defaultPizzariaSetting = (): PizzaMenuSetting => ({
 	sizes: [
@@ -176,14 +178,18 @@ export function parseParagraph(paragraph: string): Token[] {
 		const [before, after] = paragraph.split(fullMenuMarker);
 		const tokens: Token[] = [];
 		if (before.length > 0) {
-			tokens.push({ type: 'paragraph', text: before });
+			tokens.push({ type: 'paragraph', text: before, html: parseMarkdown(before) });
 		}
 		tokens.push({ type: 'menu' });
 		if (after.length > 0) {
-			tokens.push({ type: 'paragraph', text: after });
+			tokens.push({ type: 'paragraph', text: after, html: parseMarkdown(after) });
 		}
 		return tokens;
 	} else {
-		return [{ type: 'paragraph', text: paragraph }];
+		return [{ type: 'paragraph', text: paragraph, html: parseMarkdown(paragraph) }];
 	}
+}
+
+function parseMarkdown(text: string): string {
+	return DOMPurify.sanitize(marked.parse(text) as string);
 }

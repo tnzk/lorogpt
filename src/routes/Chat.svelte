@@ -99,12 +99,10 @@
 												class="w-5 h-5 text-loro-green-lighter fill-[#37B24D] animate-spin"
 											/>
 										{:then stream}
-											<div class="whitespace-pre-wrap">
-												<StreamParagraph
-													{stream}
-													on:chunk={() => (scroller.scrollTop = scroller.scrollHeight)}
-												/>
-											</div>
+											<StreamParagraph
+												{stream}
+												on:chunk={() => (scroller.scrollTop = scroller.scrollHeight)}
+											/>
 										{:catch e}
 											<span class="text-red-500">
 												{#if e.message.startsWith('429')}

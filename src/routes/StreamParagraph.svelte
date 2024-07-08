@@ -28,7 +28,7 @@
 	{#each paragraphs as paragraph}
 		{#each parseParagraph(paragraph) as token}
 			{#if token.type === 'paragraph'}
-				<p>{token.text}</p>
+				<div class="prose prose-sm">{@html token.html}</div>
 			{:else if token.type === 'menu'}
 				<a href="/menu.pdf" target="_blank" class="text-[#37B24D] underline">menu de download</a>
 			{/if}
