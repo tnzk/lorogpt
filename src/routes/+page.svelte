@@ -31,6 +31,17 @@
 			a: 'O nosso robô será preparado para detectar sentimentos negativos e reclamações. Caso isso aconteça na sua pizzaria um alerta será emitido para o gestor do estabelecimento tomar as medidas necessárias e o atendimento passará a ser humanizado neste chat específico.'
 		}
 	];
+
+	let toastMessage: string = '';
+	let toastTimer: ReturnType<typeof setTimeout>;
+
+	function showToast(message: string) {
+		toastMessage = message;
+		clearTimeout(toastTimer);
+		toastTimer = setTimeout(() => {
+			toastMessage = '';
+		}, 5000);
+	}
 </script>
 
 <section class="relative px-6 py-12 sm:pl-28 sm:pr-28 md:pr-40 lg:pr-80 sm:pt-17.5 sm:pb-20">
@@ -47,7 +58,7 @@
 		</p>
 
 		<div class="mt-12">
-			<Chat />
+			<Chat on:updateMenuSetting={() => showToast('O cardápio foi alterado')} />
 		</div>
 	</div>
 
@@ -198,6 +209,14 @@
 		<Image base="/pizzas" alt="" class="w-full" />
 	</div>
 </footer>
+
+{#if toastMessage}
+	<div class="fixed top-0 w-full p-10 flex justify-center pointer-events-none z-20">
+		<div class="pointer-events-auto px-5 py-3 bg-[#37B24D] text-white text-lg shadow-lg">
+			{toastMessage}
+		</div>
+	</div>
+{/if}
 
 <style lang="postcss">
 	.ordered-list {

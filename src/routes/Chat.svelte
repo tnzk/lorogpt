@@ -1,13 +1,16 @@
 <script lang="ts">
 	import { defaultPizzariaSetting, streamPerParagraph } from '$lib/chat';
 	import type { PizzaMenuSetting } from '$lib/menu';
+	import Tooltip from '$lib/Tooltip.svelte';
 	import { X } from '@steeze-ui/lucide-icons';
 	import { Icon } from '@steeze-ui/svelte-icon';
-	import { tick } from 'svelte';
+	import { createEventDispatcher, tick } from 'svelte';
 	import Image from './Image.svelte';
 	import MenuBuilder from './MenuBuilder.svelte';
 	import Spinner from './Spinner.svelte';
 	import StreamParagraph from './StreamParagraph.svelte';
+
+	const dispatch = createEventDispatcher<{ updateMenuSetting: PizzaMenuSetting }>();
 
 	const presetMessages = [
 		'Uma pizza de champignon',
@@ -67,7 +70,7 @@
 
 <div bind:this={container} class="p-5 bg-[#F8F9FA]">
 	{#if thread.length > 0}
-		<div class="overflow-hidden w-full max-w-xl">
+		<div class="overflow-hidden w-full">
 			<div bind:this={scroller} class="p-4 h-[580px] overflow-y-auto">
 				<div class="grid gap-8">
 					{#each thread as item}
@@ -131,7 +134,7 @@
 		</div>
 	{/if}
 
-	<div class="flex flex-col sm:flex-row items-end sm:items-center gap-3 p-5 bg-loro-white">
+	<div class="flex flex-col sm:flex-row items-end sm:items-start gap-3 p-5 bg-loro-white">
 		<form
 			class="flex-1 relative w-full"
 			on:submit|preventDefault={() => {
@@ -154,9 +157,11 @@
 			</button>
 		</form>
 
-		<button class="w-8 h-8 flex justify-center items-center" on:click={() => openSettingDialog()}>
-			<img src="/icon-setting.svg" alt="" class="w-[26px]" />
-		</button>
+		<Tooltip text="Altere sua configuração aqui">
+			<button class="w-8 h-8 flex justify-center items-center" on:click={() => openSettingDialog()}>
+				<img src="/icon-setting.svg" alt="" class="w-[26px]" />
+			</button>
+		</Tooltip>
 	</div>
 </div>
 
@@ -193,6 +198,7 @@
 					on:click={() => {
 						// debug
 						console.log(JSON.stringify(pizzariaSetting, undefined, 2));
+						dispatch('updateMenuSetting', pizzariaSetting);
 					}}
 				>
 					<Icon src={X} class="w-8 h-8" />
