@@ -196,10 +196,14 @@
 				Lztec Sistemas CNPJ 29.345.688/0001-23
 			</div>
 			<div class="flex items-center gap-1">
-				<a href="#" class="flex items-center justify-center w-10 h-10">
+				<a href="mailto:lorogpt@gmail.com" class="flex items-center justify-center w-10 h-10">
 					<img src="/icon-mail.svg" alt="Email" />
 				</a>
-				<a href="#" class="flex items-center justify-center w-10 h-10">
+				<a
+					href="https://wa.me/554598559150"
+					target="_blank"
+					class="flex items-center justify-center w-10 h-10"
+				>
 					<img src="/icon-whatsapp.svg" alt="WhatsApp" />
 				</a>
 			</div>
