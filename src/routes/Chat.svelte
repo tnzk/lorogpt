@@ -66,6 +66,12 @@
 			throw new Error('Missing stream');
 		}
 	}
+
+	function reset() {
+		message = '';
+		threadId = null;
+		thread = [];
+	}
 </script>
 
 <div bind:this={container} class="p-5 bg-[#F8F9FA]">
@@ -185,19 +191,22 @@
 >
 	<div class=" flex h-dvh w-screen items-center justify-center px-4 sm:px-12 py-12">
 		<div class="relative w-full max-w-screen-md h-full bg-white">
-			<div class="w-full h-full overflow-y-auto px-4 py-8 sm:px-12 sm:py-12">
-				<MenuBuilder bind:setting={pizzariaSetting} />
+			<div class="w-full h-full overflow-y-auto">
+				<MenuBuilder
+					setting={pizzariaSetting}
+					on:submit={(e) => {
+						settingDialog.close();
+						reset();
+						pizzariaSetting = e.detail;
+						dispatch('updateMenuSetting', e.detail);
+					}}
+				/>
 			</div>
 			<form method="dialog" class="absolute top-0 right-0 m-3">
 				<button
 					type="submit"
 					autofocus
 					class="w-12 h-12 inline-flex items-center justify-center rounded-full text-white bg-zinc-700 bg-opacity-40"
-					on:click={() => {
-						// debug
-						console.log(JSON.stringify(pizzariaSetting, undefined, 2));
-						dispatch('updateMenuSetting', pizzariaSetting);
-					}}
 				>
 					<Icon src={X} class="w-8 h-8" />
 				</button>

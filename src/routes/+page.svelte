@@ -58,7 +58,9 @@
 		</p>
 
 		<div class="mt-12">
-			<Chat on:updateMenuSetting={() => showToast('O cardápio foi alterado')} />
+			<Chat
+				on:updateMenuSetting={() => showToast('Menu Atualizado por favor reinicie seu pedido')}
+			/>
 		</div>
 	</div>
 
